@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Samsung E&A Vocabulary Master</title>
+    <style>
+        :root {
+            --primary-color: #0554f2;
+            --primary-hover: #033eb0;
+            --bg-color: #f4f7fb;
+            --card-bg: #ffffff;
+            --text-main: #222222;
+            --text-sub: #666666;
+            --border-color: #e1e8f0;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 모바일 Pull-to-refresh 및 바운스 스크롤 방지 */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            overscroll-behavior-y: none;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            position: relative;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--card-bg);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+        }
+
+        .logo-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .restart-btn {
+            background-color: #fff0f0;
+            color: var(--danger-color);
+            border: 1px solid #ffcdd2;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .restart-btn:active {
+            background-color: #ffe0e0;
+        }
+
+        <!-- Navigation Tabs -->
+        nav {
+            display: flex;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 0;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-sub);
+            border: none;
+            background: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        /* Main Content View Container */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            overscroll-behavior-y: contain;
+        }
+
+        .view-panel {
+            display: none;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .view-panel.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Tab 1: Card Flash & List */
+        .card-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .vocab-card {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-sizing: border-box;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+        }
+
+        .word-text {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .word-pos {
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        .word-meaning {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 20px;
+        }
+
+        .word-sentence {
+            font-size: 0.95rem;
+            color: #444444;
+            line-height: 1.4;
+            background-color: #f8fafd;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            text-align: left;
+        }
+
+        .audio-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(5, 84, 242, 0.3);
+            margin-top: 10px;
+        }
+
+        .audio-btn:active {
+            transform: scale(0.95);
+        }
+
+        .card-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .nav-control-btn {
+            background-color: #eef3fc;
+            color: var(--primary-color);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .nav-control-btn:disabled {
+            opacity: 0.4;
+        }
+
+        /* Tab 2: Matching Game */
+        .matching-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .match-btn {
+            background-color: var(--card-bg);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: center;
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            word-break: keep-all;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+        }
+
+        .match-btn.selected {
+            border-color: var(--primary-color);
+            background-color: #eef3fc;
+            color: var(--primary-color);
+        }
+
+        .match-btn.matched {
+            visibility: hidden;
+        }
+
+        /* Tab 3: Context Quiz */
+        .quiz-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .quiz-sentence {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .quiz-blank {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding: 0 8px;
+            font-weight: 800;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background-color: #f8fafd;
+            border: 1px solid var(--border-color);
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-align: left;
+            color: var(--text-main);
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--success-color);
+            color: #155724;
+        }
+
+        .option-btn.wrong {
+            background-color: #f8d7da;
+            border-color: var(--danger-color);
+            color: #721c24;
+        }
+
+        .feedback-box {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background-color: #e9ecef;
+            border-radius: 3px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .completion-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+
+        .completion-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Header Controls -->
+    <header>
+        <div class="logo-title">Samsung E&A Vocab Master</div>
+        <button class="restart-btn" onclick="confirmRestart()">
+            🔄 Restart
+        </button>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav>
+        <button class="tab-btn active" onclick="switchTab('study')">1. 단어 학습</button>
+        <button class="tab-btn" onclick="switchTab('match')">2. 단어 매칭</button>
+        <button class="tab-btn" onclick="switchTab('quiz')">3. 예문 퀴즈</button>
+    </nav>
+
+    <!-- Main Views -->
+    <main>
+        <!-- TAB 1: Vocab Flashcards & Listening -->
+        <div id="view-study" class="view-panel active">
+            <div class="status-header">
+                <span>학습 진행률</span>
+                <span id="study-progress-text">1 / 10</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="study-progress-bar"></div>
+            </div>
+
+            <div class="card-container">
+                <div class="vocab-card">
+                    <div class="word-text" id="card-word">Decarbonization</div>
+                    <div class="word-pos" id="card-pos">(n.)</div>
+                    <div class="word-meaning" id="card-meaning">탈탄소화</div>
+                    <div class="word-sentence" id="card-sentence">
+                        Our main business goal is achieving decarbonization.
+                    </div>
+                    <div>
+                        <button class="audio-btn" onclick="playAudio()" aria-label="Listen">🔊</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-nav">
+                <button class="nav-control-btn" id="prev-card-btn" onclick="navigateCard(-1)">이전</button>
+                <button class="nav-control-btn" id="next-card-btn" onclick="navigateCard(1)">다음</button>
+            </div>
+        </div>
+
+        <!-- TAB 2: Matching Game -->
+        <div id="view-match" class="view-panel">
+            <div class="status-header">
+                <span>남은 매칭</span>
+                <span id="match-status-text">10 / 10</span>
+            </div>
+            <div id="match-content" style="flex: 1; display: flex; align-items: center;">
+                <div class="matching-grid" id="matching-grid"></div>
+            </div>
+            <div id="match-complete" class="completion-screen" style="display: none;">
+                <div class="completion-icon">🎉</div>
+                <div class="completion-title">매칭 게임 완료!</div>
+                <p style="color: var(--text-sub);">모든 필수 단어의 의미를 성공적으로 매칭했습니다.</p>
+                <button class="action-btn" onclick="resetMatchingGame()">다시 도전하기</button>
+            </div>
+        </div>
+
+        <!-- TAB 3: Fill-in-the-blank Quiz -->
+        <div id="view-quiz" class="view-panel">
+            <div class="status-header">
+                <span>퀴즈 진행률</span>
+                <span id="quiz-progress-text">1 / 10</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="quiz-progress-bar"></div>
+            </div>
+
+            <div id="quiz-content" style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                <div class="quiz-card">
+                    <div class="quiz-sentence" id="quiz-sentence-box"></div>
+                    <div class="options-container" id="quiz-options-box"></div>
+                    <div class="feedback-box" id="quiz-feedback"></div>
+                </div>
+            </div>
+
+            <div id="quiz-complete" class="completion-screen" style="display: none;">
+                <div class="completion-icon">🏆</div>
+                <div class="completion-title">퀴즈 완료!</div>
+                <p id="quiz-score-text" style="color: var(--text-sub); font-size: 1.1rem;"></p>
+                <button class="action-btn" onclick="resetQuizGame()">퀴즈 다시 풀기</button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Raw Data Source
+    const vocabList = [
+        { id: 1, word: "Decarbonization", pos: "(n.)", meaning: "탈탄소화", sentence: "Our main business goal is achieving decarbonization." },
+        { id: 2, word: "Feasibility", pos: "(n.)", meaning: "타당성, 실행 가능성", sentence: "We need to check the project's feasibility first." },
+        { id: 3, word: "Integration", pos: "(n.)", meaning: "통합, 연계", sentence: "This plant design requires system integration." },
+        { id: 4, word: "Initiative", pos: "(n.)", meaning: "이니셔티브, 주도적 계획", sentence: "Green hydrogen is our new strategic initiative." },
+        { id: 5, word: "Infrastructure", pos: "(n.)", meaning: "기반 시설, 인프라", sentence: "We build sustainable plant infrastructure." },
+        { id: 6, word: "Turnkey", pos: "(adj.)", meaning: "일괄 수주 계약의", sentence: "Samsung E&A provides turnkey EPC solutions." },
+        { id: 7, word: "Proactive", pos: "(adj.)", meaning: "적극적인, 선제적인", sentence: "We take a proactive approach to eco-friendly design." },
+        { id: 8, word: "Capability", pos: "(n.)", meaning: "역량, 능력", sentence: "We have the technical capability for CCUS projects." },
+        { id: 9, word: "Compliance", pos: "(adj.)", meaning: "준수, 적응", sentence: "All plant designs meet environmental compliance." },
+        { id: 10, word: "Collaboration", pos: "(n.)", meaning: "협력, 공동 작업", sentence: "We look forward to fruitful collaboration with you." }
+    ];
+
+    // App State Management (LocalStorage Integration)
+    let state = {
+        currentTab: 'study',
+        studyIndex: 0,
+        matchedPairs: [],
+        quizIndex: 0,
+        quizScore: 0,
+        quizAnswers: {}
+    };
+
+    // Save and Load State
+    function saveState() {
+        localStorage.setItem('samsung_vocab_state', JSON.stringify(state));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('samsung_vocab_state');
+        if (saved) {
+            try {
+                state = { ...state, ...JSON.parse(saved) };
+            } catch (e) {
+                console.error("State load error", e);
+            }
+        }
+    }
+
+    // Initialize App
+    document.addEventListener("DOMContentLoaded", () => {
+        loadState();
+        renderTabViews();
+        switchTab(state.currentTab || 'study');
+    });
+
+    // Global Restart Function
+    function confirmRestart() {
+        if (confirm("모든 학습 진행 기록을 초기화하고 처음부터 다시 시작하시겠습니까?")) {
+            state = {
+                currentTab: 'study',
+                studyIndex: 0,
+                matchedPairs: [],
+                quizIndex: 0,
+                quizScore: 0,
+                quizAnswers: {}
+            };
+            saveState();
+            renderTabViews();
+            switchTab('study');
+        }
+    }
+
+    // Navigation Switch
+    function switchTab(tabName) {
+        state.currentTab = tabName;
+        saveState();
+
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+
+        const targetIndex = ['study', 'match', 'quiz'].indexOf(tabName);
+        document.querySelectorAll('.tab-btn')[targetIndex].classList.add('active');
+        document.getElementById(`view-${tabName}`).classList.add('active');
+
+        if (tabName === 'match' && state.matchedPairs.length === 0) {
+            initMatchingGame();
+        }
+    }
+
+    function renderTabViews() {
+        renderStudyCard();
+        renderQuizView();
+    }
+
+    /* --- TAB 1: STUDY FLASHCARDS & TTS --- */
+    function renderStudyCard() {
+        const item = vocabList[state.studyIndex];
+        document.getElementById('card-word').innerText = item.word;
+        document.getElementById('card-pos').innerText = item.pos;
+        document.getElementById('card-meaning').innerText = item.meaning;
+        document.getElementById('card-sentence').innerText = item.sentence;
+
+        document.getElementById('study-progress-text').innerText = `${state.studyIndex + 1} / ${vocabList.length}`;
+        const progressPct = ((state.studyIndex + 1) / vocabList.length) * 100;
+        document.getElementById('study-progress-bar').style.width = `${progressPct}%`;
+
+        document.getElementById('prev-card-btn').disabled = (state.studyIndex === 0);
+        document.getElementById('next-card-btn').disabled = (state.studyIndex === vocabList.length - 1);
+    }
+
+    function navigateCard(direction) {
+        state.studyIndex += direction;
+        if (state.studyIndex < 0) state.studyIndex = 0;
+        if (state.studyIndex >= vocabList.length) state.studyIndex = vocabList.length - 1;
+        saveState();
+        renderStudyCard();
+    }
+
+    function playAudio() {
+        const item = vocabList[state.studyIndex];
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Stop previous
+            const textToRead = `${item.word}. ${item.sentence}`;
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.85;
+            window.speechSynthesis.speak(utterance);
+        } else {
+            alert("이 브라우저는 음성 재생(TTS) 기능을 지원하지 않습니다.");
+        }
+    }
+
+    /* --- TAB 2: MATCHING GAME --- */
+    let selectedFirst = null;
+
+    function initMatchingGame() {
+        const grid = document.getElementById('matching-grid');
+        grid.innerHTML = '';
+
+        // Prepare English and Korean sets
+        let cards = [];
+        vocabList.forEach(item => {
+            cards.push({ id: item.id, text: item.word, type: 'en' });
+            cards.push({ id: item.id, text: item.meaning, type: 'kr' });
+        });
+
+        // Shuffle cards
+        cards.sort(() => Math.random() - 0.5);
+
+        cards.forEach((card, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'match-btn';
+            btn.innerText = card.text;
+            btn.dataset.id = card.id;
+            btn.dataset.type = card.type;
+            btn.dataset.index = index;
+
+            if (state.matchedPairs.includes(card.id)) {
+                btn.classList.add('matched');
+            }
+
+            btn.onclick = () => handleMatchSelect(btn);
+            grid.appendChild(btn);
+        });
+
+        updateMatchStatus();
+    }
+
+    function handleMatchSelect(btn) {
+        if (btn.classList.contains('matched') || btn.classList.contains('selected')) return;
+
+        if (!selectedFirst) {
+            selectedFirst = btn;
+            btn.classList.add('selected');
+        } else {
+            if (selectedFirst.dataset.type === btn.dataset.type) {
+                // Same language type clicked -> switch selection
+                selectedFirst.classList.remove('selected');
+                selectedFirst = btn;
+                btn.classList.add('selected');
+            } else {
+                // Check Match
+                if (selectedFirst.dataset.id === btn.dataset.id) {
+                    // Match Success
+                    const matchId = parseInt(btn.dataset.id);
+                    selectedFirst.classList.remove('selected');
+                    selectedFirst.classList.add('matched');
+                    btn.classList.add('matched');
+
+                    if (!state.matchedPairs.includes(matchId)) {
+                        state.matchedPairs.push(matchId);
+                        saveState();
+                    }
+                    selectedFirst = null;
+                    updateMatchStatus();
+                } else {
+                    // Match Failed
+                    btn.classList.add('selected');
+                    setTimeout(() => {
+                        selectedFirst.classList.remove('selected');
+                        btn.classList.remove('selected');
+                        selectedFirst = null;
+                    }, 400);
+                }
+            }
+        }
+    }
+
+    function updateMatchStatus() {
+        const remaining = vocabList.length - state.matchedPairs.length;
+        document.getElementById('match-status-text').innerText = `${remaining} / ${vocabList.length}`;
+
+        if (remaining === 0) {
+            document.getElementById('match-content').style.display = 'none';
+            document.getElementById('match-complete').style.display = 'block';
+        } else {
+            document.getElementById('match-content').style.display = 'flex';
+            document.getElementById('match-complete').style.display = 'none';
+        }
+    }
+
+    function resetMatchingGame() {
+        state.matchedPairs = [];
+        saveState();
+        initMatchingGame();
+    }
+
+    /* --- TAB 3: FILL-IN-THE-BLANK QUIZ --- */
+    function renderQuizView() {
+        if (state.quizIndex >= vocabList.length) {
+            // Quiz Complete Screen
+            document.getElementById('quiz-content').style.display = 'none';
+            document.getElementById('quiz-complete').style.display = 'block';
+            document.getElementById('quiz-score-text').innerText = `총 ${vocabList.length}문제 중 ${state.quizScore}문제를 맞히셨습니다.`;
+            return;
+        }
+
+        document.getElementById('quiz-content').style.display = 'flex';
+        document.getElementById('quiz-complete').style.display = 'none';
+
+        const item = vocabList[state.quizIndex];
+
+        // Replace target word in sentence with blank
+        const regex = new RegExp(item.word, "gi");
+        const blankSentence = item.sentence.replace(regex, `<span class="quiz-blank">________</span>`);
+
+        document.getElementById('quiz-sentence-box').innerHTML = `${blankSentence} <br><small style="color:var(--text-sub); font-weight:normal; font-size:0.9rem; display:block; margin-top:8px;">(${item.meaning})</small>`;
+
+        // Prepare 4 Multiple Choice Options
+        let options = [item.word];
+        let otherWords = vocabList.filter(v => v.id !== item.id).map(v => v.word);
+        otherWords.sort(() => Math.random() - 0.5);
+        options.push(...otherWords.slice(0, 3));
+        options.sort(() => Math.random() - 0.5);
+
+        const optionsContainer = document.getElementById('quiz-options-box');
+        optionsContainer.innerHTML = '';
+
+        const isAnswered = state.quizAnswers[state.quizIndex] !== undefined;
+
+        options.forEach(optionText => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = optionText;
+
+            if (isAnswered) {
+                btn.disabled = true;
+                const selectedWord = state.quizAnswers[state.quizIndex];
+                if (optionText === item.word) {
+                    btn.classList.add('correct');
+                } else if (optionText === selectedWord) {
+                    btn.classList.add('wrong');
+                }
+            } else {
+                btn.onclick = () => handleQuizAnswer(optionText, item.word);
+            }
+
+            optionsContainer.appendChild(btn);
+        });
+
+        // Feedback & Next Control
+        const feedbackBox = document.getElementById('quiz-feedback');
+        if (isAnswered) {
+            const isCorrect = state.quizAnswers[state.quizIndex] === item.word;
+            feedbackBox.style.display = 'block';
+            feedbackBox.style.backgroundColor = isCorrect ? '#d4edda' : '#f8d7da';
+            feedbackBox.style.color = isCorrect ? '#155724' : '#721c24';
+            feedbackBox.innerHTML = `${isCorrect ? '⭕ 정답입니다!' : '❌ 오답입니다. 정답: ' + item.word}<br><button class="action-btn" style="margin-top:10px; width:100%;" onclick="nextQuiz()">다음 문제</button>`;
+        } else {
+            feedbackBox.style.display = 'none';
+        }
+
+        // Progress Bar
+        document.getElementById('quiz-progress-text').innerText = `${state.quizIndex + 1} / ${vocabList.length}`;
+        const quizPct = ((state.quizIndex + 1) / vocabList.length) * 100;
+        document.getElementById('quiz-progress-bar').style.width = `${quizPct}%`;
+    }
+
+    function handleQuizAnswer(selectedOption, correctWord) {
+        state.quizAnswers[state.quizIndex] = selectedOption;
+        if (selectedOption === correctWord) {
+            state.quizScore++;
+        }
+        saveState();
+        renderQuizView();
+    }
+
+    function nextQuiz() {
+        state.quizIndex++;
+        saveState();
+        renderQuizView();
+    }
+
+    function resetQuizGame() {
+        state.quizIndex = 0;
+        state.quizScore = 0;
+        state.quizAnswers = {};
+        saveState();
+        renderQuizView();
+    }
+</script>
+</body>
+</html>
